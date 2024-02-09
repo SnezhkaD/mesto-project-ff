@@ -14,11 +14,9 @@ function createCard(item, deleteCard) {
 
   const cardElement = cardTemplate.content.cloneNode(true);
 
-  const deleteButtons = cardElement.querySelectorAll(".card__delete-button");
+  const deleteButton = cardElement.querySelector(".card__delete-button");
 
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", deleteCard);
-  });
+  deleteButton.addEventListener("click", deleteCard);
 
   return cardElement;
 }
