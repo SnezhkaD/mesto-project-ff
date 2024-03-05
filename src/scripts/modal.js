@@ -1,20 +1,23 @@
 //Модальное окно
 export function openPopup(modal) {
-    modal.classList.add("popup_is-opened");
-  }
-  
-export function closePopup(modal) {
-    modal.classList.remove("popup_is-opened");
-  }
-  
-  export function handleClickOverlay(event, modal) {
-    if (event.target === modal) {
-      closePopup(modal);
-    }
-  }
+  modal.classList.add("popup_is-opened");
+  document.addEventListener("keydown", handleEscKey);
+}
 
-  export function handleEscKey(event, modal) {
-    if (event.key === "Escape") {
-      closePopup(modal);
-    }
+export function closePopup(modal) {
+  modal.classList.remove("popup_is-opened");
+  document.removeEventListener("keydown", handleEscKey);
+}
+
+export function handleClickOverlay(event, modal) {
+  if (event.target === modal) {
+    closePopup(modal);
   }
+}
+
+export function handleEscKey(evt, modal) {
+  if (evt.key === "Escape") {
+    const openedPopup = document.querySelector(".popup_opened");
+    closePopup(modal);
+  }
+}
