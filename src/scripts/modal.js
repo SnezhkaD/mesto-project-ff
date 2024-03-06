@@ -15,9 +15,9 @@ export function handleClickOverlay(event, modal) {
   }
 }
 
-export function handleEscKey(evt, modal) {
+function handleEscKey(evt) {
   if (evt.key === "Escape") {
-    const openedPopup = document.querySelector(".popup_opened");
-    closePopup(modal);
+    const openedPopup = document.querySelector(".popup_is-opened");
+    closePopup(openedPopup);
   }
 }

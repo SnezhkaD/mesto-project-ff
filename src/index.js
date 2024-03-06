@@ -1,12 +1,7 @@
 import "./pages/index.css";
 import { initialCards } from "./scripts/cards";
 import { createCard, deleteCard, handleCardLike } from "./scripts/card";
-import {
-  openPopup,
-  closePopup,
-  handleClickOverlay,
-  handleEscKey,
-} from "./scripts/modal";
+import { openPopup, closePopup, handleClickOverlay } from "./scripts/modal";
 
 // @todo: DOM узлы
 const placesList = document.querySelector(".places__list");
@@ -16,9 +11,9 @@ const popupTypeEdit = document.querySelector(".popup_type_edit");
 const popupNewCard = document.querySelector(".popup_type_new-card");
 const closeEditButton = popupTypeEdit.querySelector(".popup__close");
 const closeNewCard = popupNewCard.querySelector(".popup__close");
-const popupForm = popupTypeEdit.querySelector(".popup__form");
-const nameInput = popupForm.querySelector(".popup__input_type_name");
-const descriptionInput = popupForm.querySelector(
+const profileForm = popupTypeEdit.querySelector(".popup__form");
+const nameInput = profileForm.querySelector(".popup__input_type_name");
+const descriptionInput = profileForm.querySelector(
   ".popup__input_type_description"
 );
 const formNewCard = popupNewCard.querySelector(".popup__form");
@@ -32,7 +27,12 @@ const profileDescription = document.querySelector(".profile__description");
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach((item) => {
-  const cardElement = createCard(item, deleteCard);
+  const cardElement = createCard(
+    item,
+    deleteCard,
+    handleCardLike,
+    openPopupImage
+  );
   placesList.append(cardElement);
 });
 
@@ -60,13 +60,7 @@ closeNewCard.addEventListener("click", function () {
   closePopup(popupNewCard);
 });
 
-document.addEventListener("keydown", function (event) {
-  handleEscKey(event, popupTypeEdit);
-  handleEscKey(event, popupNewCard);
-  handleEscKey(event, popupImage);
-});
-
-popupForm.addEventListener("submit", function (event) {
+profileForm.addEventListener("submit", function (event) {
   event.preventDefault();
   profileTitle.textContent = nameInput.value;
   profileDescription.textContent = descriptionInput.value;
@@ -78,19 +72,20 @@ formNewCard.addEventListener("submit", function (event) {
   const newItem = {
     name: placeNameInput.value,
     link: linkInput.value,
-    alt: placeNameInput.value
+    alt: placeNameInput.value,
   };
-  const newCard = createCard(newItem, deleteCard);
-  newCard.addEventListener("click", handleCardLike);
-  newCard.addEventListener("click", openPopupImage);
+  const newCard = createCard(
+    newItem,
+    deleteCard,
+    handleCardLike,
+    openPopupImage
+  );
+
   placesList.prepend(newCard);
   placeNameInput.value = "";
   linkInput.value = "";
   closePopup(popupNewCard);
 });
-
-placesList.addEventListener("click", handleCardLike);
-
 //Вывести изображение
 const popupImage = document.querySelector(".popup_type_image");
 const popupImageContent = popupImage.querySelector(
@@ -99,28 +94,21 @@ const popupImageContent = popupImage.querySelector(
 const popupImageTitle = popupImageContent.querySelector(".popup__caption");
 const popupImageElement = popupImageContent.querySelector(".popup__image");
 
-function openPopupImage(card) {
-  const image = card.querySelector(".card__image");
-  const caption = card.querySelector(".card__title").textContent;
-
-  popupImageElement.src = image.src;
-  popupImageElement.alt = caption;
-  popupImageTitle.textContent = caption;
-
-  openPopup(popupImage);
+function openPopupImage(event) {
+  if (event.target.classList.contains("card__image")) {
+    const card = event.target.closest(".card");
+    const image = card.querySelector(".card__image");
+    const caption = card.querySelector(".card__title").textContent;
+    popupImageElement.src = image.src;
+    popupImageElement.alt = caption;
+    popupImageTitle.textContent = caption;
+    openPopup(popupImage);
+  }
 }
 
 function closePopupImage() {
   closePopup(popupImage);
 }
-
-function handleCardImageClick(event) {
-  if (event.target.classList.contains("card__image")) {
-    openPopupImage(event.target.closest(".card"));
-  }
-}
-
-placesList.addEventListener("click", handleCardImageClick);
 
 popupImage
   .querySelector(".popup__close")
