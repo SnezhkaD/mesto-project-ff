@@ -20,3 +20,18 @@
     text-align: center;
   }
 }
+
+.profile__avatar-button {
+  position:absolute;
+  top: 45%;
+  left: 45px;
+  background: transparent url("/src/images/Vector.png") center no-repeat;
+  width: 26px;
+  height: 26px;
+  border: none;
+  display: none;
+}
+
+
+
+

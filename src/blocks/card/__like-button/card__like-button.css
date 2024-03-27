@@ -1,3 +1,9 @@
+.count-like {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .card__like-button {
   width: 21px;
   height: 18px;
@@ -18,3 +24,4 @@
 .card__like-button:hover {
   opacity: 0.6;
 }
+
