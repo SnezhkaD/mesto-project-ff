@@ -1,11 +1,6 @@
 import "./pages/index.css";
 import { openPopup, closePopup, handleClickOverlay } from "./scripts/modal";
-import {
-  deleteCard,
-  handleCardLike,
-  recreateCard,
-  openPopupImage,
-} from "./scripts/card";
+import { createCard, handleCardLike } from "./scripts/card";
 import {
   enableValidation,
   clearValidation,
@@ -27,7 +22,6 @@ const popupTypeEdit = document.querySelector(".popup_type_edit");
 const popupNewCard = document.querySelector(".popup_type_new-card");
 const closeEditButton = popupTypeEdit.querySelector(".popup__close");
 const closeNewCard = popupNewCard.querySelector(".popup__close");
-const cardUserButton = popupNewCard.querySelector(".popup__button");
 const profileForm = popupTypeEdit.querySelector(".popup__form");
 const nameInput = profileForm.querySelector(".popup__input_type_name");
 const descriptionInput = profileForm.querySelector(
@@ -46,10 +40,13 @@ const avatarPopup = document.querySelector(".popup_type_avatar");
 const avatarForm = avatarPopup.querySelector(".popup__form");
 const closeAvatar = avatarPopup.querySelector(".popup__close");
 const profileAvatar = document.querySelector(".profile__image");
-const popupDeleteConfirm = document.querySelector(".popup_delete_confirm");
-const popupConfirmButton = popupDeleteConfirm.querySelector(".popup__button");
 const popupImage = document.querySelector(".popup_type_image");
-let userId;
+const popupImageContent = popupImage.querySelector(
+  ".popup__content_content_image"
+);
+const popupImageTitle = popupImageContent.querySelector(".popup__caption");
+const popupImageElement = popupImageContent.querySelector(".popup__image");
+let userId; //только через let получается
 
 // @todo: Вывести карточки на страницу
 const renderInitialCards = (initialCards, userId) => {
@@ -70,6 +67,28 @@ modals.forEach((modal) => {
     handleClickOverlay(event, modal);
   });
 });
+
+const recreateCard = (
+  item,
+  userId,
+  containerCard,
+  deleteCard,
+  handleCardLike,
+  openPopupImage
+) => {
+  const cardElement = createCard(
+    item,
+    userId,
+    deleteCard,
+    handleCardLike,
+    openPopupImage
+  );
+  if (containerCard.lastElementChild === null) {
+    containerCard.append(cardElement);
+  } else {
+    containerCard.prepend(cardElement);
+  }
+};
 
 profileEditButton.addEventListener("click", function () {
   openPopup(popupTypeEdit);
@@ -95,13 +114,13 @@ closeNewCard.addEventListener("click", function () {
 
 const updateProfileData = async (event) => {
   event.preventDefault();
-  buttonLoading(true, profileForm.querySelector(".popup__button"));
+  changeButtonLoading(true, profileForm.querySelector(".popup__button"));
   updateProfile({
     name: profileForm.name.value,
     about: profileForm.description.value,
   })
     .then((updatedProfile) => {
-      fullInfoProfile(updatedProfile);
+      getFullInfoProfile(updatedProfile);
       closePopup(popupTypeEdit);
       clearValidation(profileForm, validationConfig);
     })
@@ -109,15 +128,15 @@ const updateProfileData = async (event) => {
       console.log(err);
     })
     .finally(() => {
-      buttonLoading(false, profileForm.querySelector(".popup__button"));
+      changeButtonLoading(false, profileForm.querySelector(".popup__button"));
     });
 };
 
 profileForm.addEventListener("submit", updateProfileData);
 
-const newCardFormSubmit = async (event) => {
+const handleNewCardForm = async (event) => {
   event.preventDefault();
-  buttonLoading(true, formNewCard.querySelector(".popup__button"));
+  changeButtonLoading(true, formNewCard.querySelector(".popup__button"));
   const name = placeNameInput.value;
   const link = linkInput.value;
   const alt = placeNameInput.value;
@@ -140,11 +159,11 @@ const newCardFormSubmit = async (event) => {
       console.log(err);
     })
     .finally(() => {
-      buttonLoading(false, formNewCard.querySelector(".popup__button"));
+      changeButtonLoading(false, formNewCard.querySelector(".popup__button"));
     });
 };
 
-formNewCard.addEventListener("submit", newCardFormSubmit);
+formNewCard.addEventListener("submit", handleNewCardForm);
 
 profileAvatarButton.addEventListener("click", function () {
   avatarForm.reset();
@@ -158,11 +177,11 @@ closeAvatar.addEventListener("click", function () {
 
 const updateAvatarForm = async (evt) => {
   evt.preventDefault();
-  buttonLoading(true, formNewCard.querySelector(".popup__button"));
+  changeButtonLoading(true, avatarForm.querySelector(".popup__button"));
 
   updateAvatar(avatarForm.link.value)
     .then((updatedProfile) => {
-      fullInfoProfile(updatedProfile);
+      getFullInfoProfile(updatedProfile);
       closePopup(avatarPopup);
       clearValidation(avatarForm, validationConfig);
     })
@@ -170,10 +189,22 @@ const updateAvatarForm = async (evt) => {
       console.log(err);
     })
     .finally(() => {
-      buttonLoading(false, formNewCard.querySelector(".popup__button"));
+      changeButtonLoading(false, avatarForm.querySelector(".popup__button"));
     });
 };
 avatarForm.addEventListener("submit", updateAvatarForm);
+
+export function openPopupImage(event) {
+  if (event.target.classList.contains("card__image")) {
+    const card = event.target.closest(".card");
+    const image = card.querySelector(".card__image");
+    const caption = card.querySelector(".card__title").textContent;
+    popupImageElement.src = image.src;
+    popupImageElement.alt = caption;
+    popupImageTitle.textContent = caption;
+    openPopup(popupImage);
+  }
+}
 
 function closePopupImage() {
   closePopup(popupImage);
@@ -183,29 +214,22 @@ popupImage
   .querySelector(".popup__close")
   .addEventListener("click", closePopupImage);
 
-const handleDeleteConfirm = async (evt) => {
-  deleteCardUser(popupDeleteConfirm.dataset.cardId)
-    .then((result) => {
-      const card = document.querySelector(
-        `[data-card-id="${popupDeleteConfirm.dataset.cardId}"]`
-      );
-      card.remove();
-      closePopup(popupDeleteConfirm);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+export const deleteCard = (evt, cardId) => {
+  deleteCardUser(cardId);
+  const button = evt.target;
+  const card = button.closest(".card");
+  if (card) {
+    card.remove();
+  }
 };
 
-popupConfirmButton.addEventListener("click", handleDeleteConfirm);
-
-const fullInfoProfile = (userInfo) => {
+const getFullInfoProfile = (userInfo) => {
   profileTitle.textContent = userInfo.name;
   profileDescription.textContent = userInfo.about;
   profileAvatar.style.backgroundImage = `url(${userInfo.avatar})`;
 };
 
-const buttonLoading = (isLoading, button) => {
+const changeButtonLoading = (isLoading, button) => {
   if (isLoading) {
     button.textContent = "Сохранение...";
   } else {
@@ -218,7 +242,7 @@ getInitialInfo()
     const userInfo = result[0];
     userId = userInfo._id;
     const initialCards = result[1];
-    fullInfoProfile(userInfo);
+    getFullInfoProfile(userInfo);
     renderInitialCards(initialCards, userId);
   })
   .catch((err) => {

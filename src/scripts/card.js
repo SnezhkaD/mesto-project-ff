@@ -1,6 +1,5 @@
-import { openPopup } from "./modal";
 import { unlikeCard, likeCard } from "./api";
-const popupDeleteConfirm = document.querySelector(".popup_delete_confirm");
+import { deleteCard, openPopupImage } from "../index";
 
 export function createCard(card, userId) {
   const cardTemplate = document.querySelector("#card-template");
@@ -39,13 +38,8 @@ export function createCard(card, userId) {
   return cardElement;
 }
 
-export const deleteCard = (evt, cardId) => {
-  openPopup(popupDeleteConfirm);
-  popupDeleteConfirm.dataset.cardId = cardId;
-};
-
 export const handleCardLike = async (evt, cardId) => {
-  let correctLikes = evt.target.parentNode.querySelector(".card__like-count");
+  const correctLikes = evt.target.parentNode.querySelector(".card__like-count");
   if (evt.target.classList.contains("card__like-button_is-active")) {
     unlikeCard(cardId)
       .then((updateCard) => {
@@ -66,44 +60,3 @@ export const handleCardLike = async (evt, cardId) => {
       });
   }
 };
-
-export const recreateCard = (
-  item,
-  userId,
-  containerCard,
-  deleteCard,
-  handleCardLike,
-  openPopupImage
-) => {
-  const cardElement = createCard(
-    item,
-    userId,
-    deleteCard,
-    handleCardLike,
-    openPopupImage
-  );
-  if (containerCard.lastElementChild === null) {
-    containerCard.append(cardElement);
-  } else {
-    containerCard.prepend(cardElement);
-  }
-};
-
-const popupImage = document.querySelector(".popup_type_image");
-const popupImageContent = popupImage.querySelector(
-  ".popup__content_content_image"
-);
-const popupImageTitle = popupImageContent.querySelector(".popup__caption");
-const popupImageElement = popupImageContent.querySelector(".popup__image");
-
-export function openPopupImage(event) {
-  if (event.target.classList.contains("card__image")) {
-    const card = event.target.closest(".card");
-    const image = card.querySelector(".card__image");
-    const caption = card.querySelector(".card__title").textContent;
-    popupImageElement.src = image.src;
-    popupImageElement.alt = caption;
-    popupImageTitle.textContent = caption;
-    openPopup(popupImage);
-  }
-}
