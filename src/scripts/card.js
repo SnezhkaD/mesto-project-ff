@@ -1,7 +1,12 @@
 import { unlikeCard, likeCard } from "./api";
-import { deleteCard, openPopupImage } from "../index";
 
-export function createCard(card, userId) {
+export function createCard(
+  card,
+  userId,
+  deleteCard,
+  handleCardLike,
+  openPopupImage
+) {
   const cardTemplate = document.querySelector("#card-template");
   const cardImage = cardTemplate.content.querySelector(".card__image");
   const cardTitle = cardTemplate.content.querySelector(".card__title");

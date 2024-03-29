@@ -194,7 +194,7 @@ const updateAvatarForm = async (evt) => {
 };
 avatarForm.addEventListener("submit", updateAvatarForm);
 
-export function openPopupImage(event) {
+function openPopupImage(event) {
   if (event.target.classList.contains("card__image")) {
     const card = event.target.closest(".card");
     const image = card.querySelector(".card__image");
@@ -214,7 +214,7 @@ popupImage
   .querySelector(".popup__close")
   .addEventListener("click", closePopupImage);
 
-export const deleteCard = (evt, cardId) => {
+const deleteCard = (evt, cardId) => {
   deleteCardUser(cardId);
   const button = evt.target;
   const card = button.closest(".card");
